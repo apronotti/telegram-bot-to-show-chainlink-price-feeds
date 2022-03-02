@@ -1,0 +1,26 @@
+{
+    "polygon": {
+        "apiprovider": "https://polygon-mainnet.g.alchemy.com/v2/<project id>",
+        "cl_contract_address": {
+            "etherusd": "0xF9680D99D6C9589e2a93a78A04A279e509205945",
+            "btcusd": "0xc907E116054Ad103354f2D350FD2514433D57F6f"
+        }
+    },
+    "ethereum": {
+        "apiprovider": "https://mainnet.infura.io/v3/<project id>",
+        "cl_contract_address": {
+            "etherusd": "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
+            "btcusd": "0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c"
+        }
+    },
+    "bsc": {
+        "apiprovider": "https://bsc-dataseed1.binance.org/",
+        "cl_contract_address": {
+            "etherusd": "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e",
+            "btcusd": "0x264990fbd0A4796A3E3d8E37C4d5F87a3aCa5Ebf"
+        }
+    },
+    "telegram": {
+        "token": "TOKEN_VALUE"
+    }
+}

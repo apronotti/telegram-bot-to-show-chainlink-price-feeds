@@ -1,0 +1,6 @@
+DateTime==4.4
+numpy==1.17.4
+prettytable==0.7.2
+python-telegram-bot==13.11
+requests==2.25.1
+web3==5.11.1
