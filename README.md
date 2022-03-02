@@ -25,12 +25,13 @@ python-telegram-bot-raw is part of the [python-telegram-bot](https://python-tele
 ## Requeriments
 
 ### Python3 modules
-**DateTime** version 4.4
-**numpy version** 1.17.4
-**prettytable** version 0.7.2
-**python-telegram-bot** version 13.11
-**requests** version 2.25.1
-**web3** version 5.11.1
+
+ * **DateTime** version 4.4
+ * **numpy version** 1.17.4
+ * **prettytable** version 0.7.2
+ * **python-telegram-bot** version 13.11
+ * **requests** version 2.25.1
+ * **web3** version 5.11.1
 
 ## Install
 
@@ -63,7 +64,7 @@ or
 if you want, you can try the example bot at https://t.me/btc_eth_cl_query_prices_bot
 
 ### Using the bot
-1. In the message field type **/start**, this command is used only one time to initialize the bot
+1. In the Telegram App message field type **/start**, this command is used only one time to initialize the bot.
 2. Each time you want to query prices type **/pricefeeds**
 3. Choose one of the options **"BTC/USD price"** or **"ETH/USD price"**
 
@@ -74,7 +75,7 @@ if you want, you can try the example bot at https://t.me/btc_eth_cl_query_prices
 
  1. Go to https://docs.chain.link/docs/reference-contracts/
  2. Click on the chosen chain for example Ethereum
- 3. Copy the ETH/USD contract address 0x9326BFA02ADD2366b30bacB125260Af641031331 and use it in the next example.
+ 3. Copy the ETH/USD Proxy contract address 0x9326BFA02ADD2366b30bacB125260Af641031331 and use it in the next example.
 
 
 This example uses Web3 module to retrieve feed data from the ETH / USD feed on the Ethereum network.
@@ -96,7 +97,8 @@ Type "help", "copyright", "credits" or "license" for more information.
 2952
 ```
   
-### In the bot is implemented in   
+### In the bot is implemented in the following part of the source code of the bot 
+
 ```
 ...
 
@@ -108,7 +110,12 @@ web3Ethereum = Web3(Web3.HTTPProvider(config.ethereum.apiprovider))
 
 ...
 
-def hoursFromTimeStamp(timestampValue) -> str:
+# Read configuration from config.json
+config = Configuration.load_json('config.json')
+web3Ethereum = Web3(Web3.HTTPProvider(config.ethereum.apiprovider))
+...
+
+def hoursFromTimeStamp(self, timestampValue) -> str:
     # convert timestamp to string of datetime format
     date = str(dt.datetime.fromtimestamp(timestampValue))
     # extract hours without seconds
@@ -116,12 +123,13 @@ def hoursFromTimeStamp(timestampValue) -> str:
     return hours
 
 # Query the price of ETH/USD from Ethereum, Polygon and Bsc networks
-def getEth() -> str:
-    addr = config.ethereum.cl_contract_address.etherusd
-    contract = web3Ethereum.eth.contract(address=addr, abi=ABI_CL_PRICE_FEED)
+def getEth(self) -> str:
+    addr = self.config.ethereum.cl_contract_address.etherusd
+    contract = self.web3Ethereum.eth.contract(address=addr, abi=self.ABI_CL_PRICE_FEED)
     # ETH/USD price query from Ethereum mainnet
     latestData = contract.functions.latestRoundData().call()
-    ethereumData = ('Ethereum',latestData[1], hoursFromTimeStamp(latestData[2]))
+    ethereumData = (
+            'Ethereum', latestData[1], self.hoursFromTimeStamp(latestData[2]))
 
     ...
 
