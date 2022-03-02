@@ -56,14 +56,14 @@ With the bot **Access TOKEN** obtained in the former step:
 ```
 python3 btc-eth-query-prices-from-n-blockchains.py
 ```
-## User guide
-### Installing the bot
+
+## Installing the bot
 Once the bot was generated in the former step titled **"Generate your bot and Access Token"**, in Telegram app click on https://t.me/[NAME_OF_THE_BOT]
 You need to replace NAME_OF_THE_BOT with your bot name 
 or 
 if you want, you can try the example bot at https://t.me/btc_eth_cl_query_prices_bot
 
-### Using the bot
+## Using the bot
 1. In the Telegram App message field type **/start**, this command is used only one time to initialize the bot.
 2. Each time you want to query prices type **/pricefeeds**
 3. Choose one of the options **"BTC/USD price"** or **"ETH/USD price"**
