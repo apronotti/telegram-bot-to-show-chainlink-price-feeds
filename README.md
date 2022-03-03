@@ -97,7 +97,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 2952
 ```
   
-### In the bot is implemented in the following part of the source code of the bot 
+### Chainlink price queries are implemented in the following part of the source code of the bot
 
 ```
 ...
