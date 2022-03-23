@@ -1,5 +1,3 @@
-# pylint: disable=C0116,W0613
-
 """
 Basic example for a bot that uses inline keyboards. For an in-depth explanation, check out
  https://git.io/JOmFw.
@@ -24,7 +22,7 @@ class CLPriceFeedsTelegramBot:
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
     )
     logger = logging.getLogger(__name__)
-
+    
     # basic cache implementation
     cache = {"ETHUSD": None, "BTCUSD": None}
     cachetime = {"ETHUSD": time.time(), "BTCUSD": time.time()}
@@ -36,12 +34,12 @@ class CLPriceFeedsTelegramBot:
 
     # Read configuration from config.json
     config = Configuration.load_json('config.json')
-    web3Ethereum = Web3(Web3.HTTPProvider(config.ethereum.apiprovider))
-    web3Polygon = Web3(Web3.HTTPProvider(config.polygon.apiprovider))
-    web3Bsc = Web3(Web3.HTTPProvider(config.bsc.apiprovider))
+    web3_ethereum = Web3(Web3.HTTPProvider(config.ethereum.apiprovider))
+    web3_polygon = Web3(Web3.HTTPProvider(config.polygon.apiprovider))
+    web3_bsc = Web3(Web3.HTTPProvider(config.bsc.apiprovider))
 
 
-    def hoursFromTimeStamp(self, timestampValue) -> str:
+    def hours_from_timestamp(self, timestampValue) -> str:
         # convert timestamp to string of datetime format
         date = str(dt.datetime.fromtimestamp(timestampValue))
         # extract hours without seconds
@@ -49,65 +47,65 @@ class CLPriceFeedsTelegramBot:
         return hours
 
     # Query the price of ETH/USD from Ethereum, Polygon and Bsc networks
-    def getEth(self) -> str:
+    def get_eth(self) -> str:
         addr = self.config.ethereum.cl_contract_address.etherusd
-        contract = self.web3Ethereum.eth.contract(address=addr, abi=self.ABI_CL_PRICE_FEED)
+        contract = self.web3_ethereum.eth.contract(address=addr, abi=self.ABI_CL_PRICE_FEED)
         # ETH/USD price query from Ethereum mainnet
-        latestData = contract.functions.latestRoundData().call()
-        ethereumData = (
-            'Ethereum', latestData[1], self.hoursFromTimeStamp(latestData[2]))
+        latest_data = contract.functions.latestRoundData().call()
+        ethereum_data = (
+            'Ethereum', latest_data[1], self.hours_from_timestamp(latest_data[2]))
 
         addr = self.config.polygon.cl_contract_address.etherusd
-        contract = self.web3Polygon.eth.contract(address=addr, abi=self.ABI_CL_PRICE_FEED)
+        contract = self.web3_polygon.eth.contract(address=addr, abi=self.ABI_CL_PRICE_FEED)
         # ETH/USD price query from Polygon mainnet
-        latestData = contract.functions.latestRoundData().call()
-        polygonData = ('Polygon', latestData[1], self.hoursFromTimeStamp(latestData[2]))
+        latest_data = contract.functions.latestRoundData().call()
+        polygon_data = ('Polygon', latest_data[1], self.hours_from_timestamp(latest_data[2]))
 
         addr = self.config.bsc.cl_contract_address.etherusd
-        contract = self.web3Bsc.eth.contract(address=addr, abi=self.ABI_CL_PRICE_FEED)
+        contract = self.web3_bsc.eth.contract(address=addr, abi=self.ABI_CL_PRICE_FEED)
         # ETH/USD price query from Binance Smart Chain mainnet
-        latestData = contract.functions.latestRoundData().call()
-        bscData = ('Bsc', latestData[1], self.hoursFromTimeStamp(latestData[2]))
+        latest_data = contract.functions.latestRoundData().call()
+        bsc_data = ('Bsc', latest_data[1], self.hours_from_timestamp(latest_data[2]))
 
         title = 'ETH/USD'
-        return [title, ethereumData, polygonData, bscData]
+        return [title, ethereum_data, polygon_data, bsc_data]
 
     # Query the price of BTC/USD from Ethereum, Polygon and Bsc networks
-    def getBTC(self) -> str:
+    def get_btc(self) -> str:
         addr = self.config.ethereum.cl_contract_address.btcusd
-        contract = self.web3Ethereum.eth.contract(address=addr, abi=self.ABI_CL_PRICE_FEED)
+        contract = self.web3_ethereum.eth.contract(address=addr, abi=self.ABI_CL_PRICE_FEED)
         # BTC/USD price query from Ethereum mainnet
-        latestData = contract.functions.latestRoundData().call()
-        ethereumData = (
-            'Ethereum', latestData[1], self.hoursFromTimeStamp(latestData[2]))
+        latest_data = contract.functions.latestRoundData().call()
+        ethereum_data = (
+            'Ethereum', latest_data[1], self.hours_from_timestamp(latest_data[2]))
     
         addr = self.config.polygon.cl_contract_address.btcusd
-        contract = self.web3Polygon.eth.contract(address=addr, abi=self.ABI_CL_PRICE_FEED)
+        contract = self.web3_polygon.eth.contract(address=addr, abi=self.ABI_CL_PRICE_FEED)
         # BTC/USD price query from Polygon mainnet
-        latestData = contract.functions.latestRoundData().call()
-        polygonData = ('Polygon', latestData[1], self.hoursFromTimeStamp(latestData[2]))
+        latest_data = contract.functions.latestRoundData().call()
+        polygon_data = ('Polygon', latest_data[1], self.hours_from_timestamp(latest_data[2]))
     
         addr = self.config.bsc.cl_contract_address.btcusd
-        contract = self.web3Bsc.eth.contract(address=addr, abi=self.ABI_CL_PRICE_FEED)
+        contract = self.web3_bsc.eth.contract(address=addr, abi=self.ABI_CL_PRICE_FEED)
         # BTC/USD price query from Binance Smart Chain mainnet
-        latestData = contract.functions.latestRoundData().call()
-        bscData = ('Bsc', latestData[1], self.hoursFromTimeStamp(latestData[2]))
+        latest_data = contract.functions.latestRoundData().call()
+        bsc_data = ('Bsc', latest_data[1], self.hours_from_timestamp(latest_data[2]))
     
         title = 'BTC/USD'
-        return [title, ethereumData, polygonData, bscData]
+        return [title, ethereum_data, polygon_data, bsc_data]
     
     
-    def getPrice(self, selectedOption: str) -> str:
-        if selectedOption == "ETHUSD":
-            return self.buildTable(self.getEth())
-        elif selectedOption == "BTCUSD":
-            return self.buildTable(self.getBTC())
+    def get_price(self, selected_option: str) -> str:
+        if selected_option == "ETHUSD":
+            return self.build_table(self.get_eth())
+        elif selected_option == "BTCUSD":
+            return self.build_table(self.get_btc())
         else:
-            return self.buildTable(self.getEth())
+            return self.build_table(self.get_eth())
     
     
     def start(self, update: Update, context: CallbackContext) -> None:
-        self.menuCommand()
+        self.menu_command()
     
     
     def button(self, update: Update, context: CallbackContext) -> None:
@@ -121,7 +119,7 @@ class CLPriceFeedsTelegramBot:
         selected_option = query.data
     
         if (time.time() - self.cachetime[selected_option]) > self.CACHE_DURATION or self.cache[selected_option] == None:
-            table = self.getPrice(selected_option)
+            table = self.get_price(selected_option)
             self.cache[selected_option] = table
             self.cachetime[selected_option] = time.time()
             print("no cache")
@@ -133,7 +131,7 @@ class CLPriceFeedsTelegramBot:
             text=f'<pre>{table}</pre>', parse_mode=ParseMode.HTML)
     
     
-    def menuCommand(self, update: Update, context: CallbackContext) -> None:
+    def menu_command(self, update: Update, context: CallbackContext) -> None:
         """Sends a message with three inline buttons attached."""
         keyboard = [
             [InlineKeyboardButton("ETH/USD price", callback_data='ETHUSD')],
@@ -146,7 +144,7 @@ class CLPriceFeedsTelegramBot:
             'Please choose an option:', reply_markup=reply_markup)
     
     
-    def buildTable(self, data):
+    def build_table(self, data):
     
         table = pt.PrettyTable()
     
@@ -170,7 +168,7 @@ class CLPriceFeedsTelegramBot:
     
         updater.dispatcher.add_handler(CommandHandler('start', self.start))
         updater.dispatcher.add_handler(CallbackQueryHandler(self.button))
-        updater.dispatcher.add_handler(CommandHandler('pricefeeds', self.menuCommand))
+        updater.dispatcher.add_handler(CommandHandler('pricefeeds', self.menu_command))
     
         # Start the Bot
         updater.start_polling()

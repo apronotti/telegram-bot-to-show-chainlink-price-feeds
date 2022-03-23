@@ -56,7 +56,7 @@ With the bot **Access TOKEN** obtained in the former step:
 ## Runing the bot
 
 ```
-python3 btc-eth-query-prices-from-n-blockchains.py
+python3 btc_eth_query_prices_from_n_blockchains.py
 ```
 
 ## Installing the bot
@@ -108,16 +108,16 @@ ABI_CL_PRICE_FEED= '[{"inputs":[],"name":"decimals","outputs":[{"internalType":"
 
 # Read configuration from config.json
 config = Configuration.load_json('config.json')
-web3Ethereum = Web3(Web3.HTTPProvider(config.ethereum.apiprovider))
+web3_ethereum = Web3(Web3.HTTPProvider(config.ethereum.apiprovider))
 
 ...
 
 # Read configuration from config.json
 config = Configuration.load_json('config.json')
-web3Ethereum = Web3(Web3.HTTPProvider(config.ethereum.apiprovider))
+web3_ethereum = Web3(Web3.HTTPProvider(config.ethereum.apiprovider))
 ...
 
-def hoursFromTimeStamp(self, timestampValue) -> str:
+def hours_from_timestamp(self, timestampValue) -> str:
     # convert timestamp to string of datetime format
     date = str(dt.datetime.fromtimestamp(timestampValue))
     # extract hours without seconds
@@ -125,13 +125,13 @@ def hoursFromTimeStamp(self, timestampValue) -> str:
     return hours
 
 # Query the price of ETH/USD from Ethereum, Polygon and Bsc networks
-def getEth(self) -> str:
+def get_eth(self) -> str:
     addr = self.config.ethereum.cl_contract_address.etherusd
     contract = self.web3Ethereum.eth.contract(address=addr, abi=self.ABI_CL_PRICE_FEED)
     # ETH/USD price query from Ethereum mainnet
-    latestData = contract.functions.latestRoundData().call()
-    ethereumData = (
-            'Ethereum', latestData[1], self.hoursFromTimeStamp(latestData[2]))
+    latest_data = contract.functions.latestRoundData().call()
+    ethereum_data = (
+            'Ethereum', latest_data[1], self.hours_from_timestamp(latest_data[2]))
 
     ...
 
