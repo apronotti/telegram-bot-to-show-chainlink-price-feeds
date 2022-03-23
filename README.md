@@ -3,7 +3,7 @@
 The main idea of this tutorial is to show an example of how to develop a **Telegram bot** that consumes **Chainlink price feeds** for BTC/USD and ETH/USD pair of assets from **Ethereum, Polygon and Binance Smart Chain** mainnets.
 The progam language used is **python** 
 
-This development was intended as an example to learn how to get prices from Chainlink in a simple way. If someone has in mind to put this bot into production environment I suggest implementing the price requests in asynchronous calls, the simplified cache in this code could be replaced by REDIS as a better tunable cache and it's a good practice to refactor getETH and getBTC functions into another more generic function to cover more price feeds.
+This development was intended as an example to learn how to get prices from Chainlink in a simple way. If someone has in mind to put this bot into production environment I suggest implementing the price requests in asynchronous calls, the simplified cache in this code could be replaced by REDIS as a better tunable cache and it's a good practice to refactor get_eth and get_btc functions into another more generic function to cover more price feeds.
 
 ## Useful documentation
 
