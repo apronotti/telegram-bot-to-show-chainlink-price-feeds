@@ -178,5 +178,5 @@ class CLPriceFeedsTelegramBot:
         updater.idle()
 
 
-botInstance = CLPriceFeedsTelegramBot()
-botInstance.main()
+bot_instance = CLPriceFeedsTelegramBot()
+bot_instance.main()

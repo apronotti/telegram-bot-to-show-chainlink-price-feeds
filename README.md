@@ -56,7 +56,7 @@ With the bot **Access TOKEN** obtained in the former step:
 ## Runing the bot
 
 ```
-python3 btc_eth_query_prices_from_n_blockchains.py
+python3 btc_eth_query_prices_n_blockchains.py
 ```
 
 ## Installing the bot
