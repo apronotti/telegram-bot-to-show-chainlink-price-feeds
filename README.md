@@ -3,7 +3,7 @@
 The main idea of this tutorial is to show an example of how to develop a **Telegram bot** that consumes **Chainlink price feeds** for BTC/USD and ETH/USD pair of assets from **Ethereum, Polygon and Binance Smart Chain** mainnets.
 The progam language used is **python** 
 
-This development was intended as an example to learn how to get prices from Chainlink in a simple way. If someone has in mind to put this bot into production environment I suggest implementing the price requests in asynchronous calls, the simplified cache in this code could be replaced by REDIS as a better tunable cache and it's a good practice to refactor get_eth and get_btc functions into another more generic function to cover more price feeds. (refactored function in https://github.com/apronotti/telegram-bot-to-show-chainlink-price-feeds/tree/refactoring-by-unifying-the-price-getter )
+This development was intended as an example to learn how to get prices from Chainlink in a simple way. If someone has in mind to put this bot into production environment I suggest implementing the price requests in asynchronous calls, the simplified cache in this code could be replaced by REDIS as a better tunable cache.
 
 ## Useful documentation
 
@@ -104,35 +104,39 @@ Type "help", "copyright", "credits" or "license" for more information.
 ```
 ...
 
-ABI_CL_PRICE_FEED= '[{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"description","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint80","name":"_roundId","type":"uint80"}],"name":"getRoundData","outputs":[{"internalType":"uint80","name":"roundId","type":"uint80"},{"internalType":"int256","name":"answer","type":"int256"},{"internalType":"uint256","name":"startedAt","type":"uint256"},{"internalType":"uint256","name":"updatedAt","type":"uint256"},{"internalType":"uint80","name":"answeredInRound","type":"uint80"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"latestRoundData","outputs":[{"internalType":"uint80","name":"roundId","type":"uint80"},{"internalType":"int256","name":"answer","type":"int256"},{"internalType":"uint256","name":"startedAt","type":"uint256"},{"internalType":"uint256","name":"updatedAt","type":"uint256"},{"internalType":"uint80","name":"answeredInRound","type":"uint80"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"version","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
-
 # Read configuration from config.json
 config = Configuration.load_json('config.json')
 web3_ethereum = Web3(Web3.HTTPProvider(config.ethereum.apiprovider))
 
 ...
 
-# Read configuration from config.json
-config = Configuration.load_json('config.json')
-web3_ethereum = Web3(Web3.HTTPProvider(config.ethereum.apiprovider))
+def get_price(self, selected_option: str) -> str:
+    """ get the prices selected in the menu """
+    contract_address = ""
+    title = ""
+    if selected_option == "ETHUSD":
+        contract_address = dict(ethereum=self.config.ethereum.cl_contract_address.etherusd,
+                                polygon=self.config.polygon.cl_contract_address.etherusd,
+                                bsc=self.config.bsc.cl_contract_address.etherusd)
+        title = "ETH/USD"
 ...
 
-def hours_from_timestamp(self, timestampValue) -> str:
-    # convert timestamp to string of datetime format
-    date = str(dt.datetime.fromtimestamp(timestampValue))
-    # extract hours without seconds
-    hours = date[-8:][:-3]
-    return hours
-
-# Query the price of ETH/USD from Ethereum, Polygon and Bsc networks
-def get_eth(self) -> str:
-    addr = self.config.ethereum.cl_contract_address.etherusd
-    contract = self.web3Ethereum.eth.contract(address=addr, abi=self.ABI_CL_PRICE_FEED)
-    # ETH/USD price query from Ethereum mainnet
+def get_from_blockchain(self, contract_address, title) -> str:
+    """ Query the price of ETH/USD or BTC/USD from Ethereum, Polygon and Bsc networks """
+    contract = self.web3_ethereum.eth.contract(
+        address=contract_address['ethereum'], abi=self.ABI_CL_PRICE_FEED)
+    # price query from Ethereum mainnet
     latest_data = contract.functions.latestRoundData().call()
     ethereum_data = (
-            'Ethereum', latest_data[1], self.hours_from_timestamp(latest_data[2]))
+        'Ethereum',
+        latest_data[1],
+        hours_from_timestamp(
+            latest_data[2]))
 
     ...
+
+    data = self.get_from_blockchain(contract_address, title)
+
+    return build_table(data)
 
 ```

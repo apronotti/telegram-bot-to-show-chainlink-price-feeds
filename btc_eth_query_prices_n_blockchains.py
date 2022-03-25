@@ -1,7 +1,7 @@
 """
 example of how to develop a Telegram bot that consumes Chainlink price feeds
-for BTC/USD and ETH/USD pair of assets from Ethereum, Polygon and 
-Binance Smart Chain mainnets. 
+for BTC/USD and ETH/USD pair of assets from Ethereum, Polygon and
+Binance Smart Chain mainnets.
 """
 import logging
 import time
@@ -32,12 +32,14 @@ def build_table(data):
 
     return table
 
+
 def hours_from_timestamp(timestamp_value) -> str:
     """ convert timestamp to string of datetime format """
     date = str(dt.datetime.fromtimestamp(timestamp_value))
     # extract hours without seconds
     hours = date[-8:][:-3]
     return hours
+
 
 class CLPriceFeedsTelegramBot:
     """ Chainlink Price Feeds Telegram bot """
@@ -62,12 +64,11 @@ class CLPriceFeedsTelegramBot:
     web3_polygon = Web3(Web3.HTTPProvider(config.polygon.apiprovider))
     web3_bsc = Web3(Web3.HTTPProvider(config.bsc.apiprovider))
 
-    def get_eth(self) -> str:
-        """ Query the price of ETH/USD from Ethereum, Polygon and Bsc networks """
-        addr = self.config.ethereum.cl_contract_address.etherusd
+    def get_from_blockchain(self, contract_address, title) -> str:
+        """ Query the price of ETH/USD or BTC/USD from Ethereum, Polygon and Bsc networks """
         contract = self.web3_ethereum.eth.contract(
-            address=addr, abi=self.ABI_CL_PRICE_FEED)
-        # ETH/USD price query from Ethereum mainnet
+            address=contract_address['ethereum'], abi=self.ABI_CL_PRICE_FEED)
+        # price query from Ethereum mainnet
         latest_data = contract.functions.latestRoundData().call()
         ethereum_data = (
             'Ethereum',
@@ -75,10 +76,9 @@ class CLPriceFeedsTelegramBot:
             hours_from_timestamp(
                 latest_data[2]))
 
-        addr = self.config.polygon.cl_contract_address.etherusd
         contract = self.web3_polygon.eth.contract(
-            address=addr, abi=self.ABI_CL_PRICE_FEED)
-        # ETH/USD price query from Polygon mainnet
+            address=contract_address['polygon'], abi=self.ABI_CL_PRICE_FEED)
+        # price query from Polygon mainnet
         latest_data = contract.functions.latestRoundData().call()
         polygon_data = (
             'Polygon',
@@ -86,10 +86,9 @@ class CLPriceFeedsTelegramBot:
             hours_from_timestamp(
                 latest_data[2]))
 
-        addr = self.config.bsc.cl_contract_address.etherusd
         contract = self.web3_bsc.eth.contract(
-            address=addr, abi=self.ABI_CL_PRICE_FEED)
-        # ETH/USD price query from Binance Smart Chain mainnet
+            address=contract_address['bsc'], abi=self.ABI_CL_PRICE_FEED)
+        # price query from Binance Smart Chain mainnet
         latest_data = contract.functions.latestRoundData().call()
         bsc_data = (
             'Bsc',
@@ -97,59 +96,28 @@ class CLPriceFeedsTelegramBot:
             hours_from_timestamp(
                 latest_data[2]))
 
-        title = 'ETH/USD'
-        return [title, ethereum_data, polygon_data, bsc_data]
-
-    def get_btc(self) -> str:
-        """ Query the price of BTC/USD from Ethereum, Polygon and Bsc networks """
-        addr = self.config.ethereum.cl_contract_address.btcusd
-        contract = self.web3_ethereum.eth.contract(
-            address=addr, abi=self.ABI_CL_PRICE_FEED)
-        # BTC/USD price query from Ethereum mainnet
-        latest_data = contract.functions.latestRoundData().call()
-        ethereum_data = (
-            'Ethereum',
-            latest_data[1],
-            hours_from_timestamp(
-                latest_data[2]))
-
-        addr = self.config.polygon.cl_contract_address.btcusd
-        contract = self.web3_polygon.eth.contract(
-            address=addr, abi=self.ABI_CL_PRICE_FEED)
-        # BTC/USD price query from Polygon mainnet
-        latest_data = contract.functions.latestRoundData().call()
-        polygon_data = (
-            'Polygon',
-            latest_data[1],
-            hours_from_timestamp(
-                latest_data[2]))
-
-        addr = self.config.bsc.cl_contract_address.btcusd
-        contract = self.web3_bsc.eth.contract(
-            address=addr, abi=self.ABI_CL_PRICE_FEED)
-        # BTC/USD price query from Binance Smart Chain mainnet
-        latest_data = contract.functions.latestRoundData().call()
-        bsc_data = (
-            'Bsc',
-            latest_data[1],
-            hours_from_timestamp(
-                latest_data[2]))
-
-        title = 'BTC/USD'
         return [title, ethereum_data, polygon_data, bsc_data]
 
     def get_price(self, selected_option: str) -> str:
         """ get the prices selected in the menu """
-        get_func = None
+        contract_address = ""
+        title = ""
         if selected_option == "ETHUSD":
-            get_func = self.get_eth
+            contract_address = dict(ethereum=self.config.ethereum.cl_contract_address.etherusd,
+                                    polygon=self.config.polygon.cl_contract_address.etherusd,
+                                    bsc=self.config.bsc.cl_contract_address.etherusd)
+            title = "ETH/USD"
         elif selected_option == "BTCUSD":
-            get_func = self.get_btc
-        else:
-            get_func = self.get_eth
-        return build_table(get_func())
+            contract_address = dict(ethereum=self.config.ethereum.cl_contract_address.btcusd,
+                                    polygon=self.config.polygon.cl_contract_address.btcusd,
+                                    bsc=self.config.bsc.cl_contract_address.btcusd)
+            title = "BTC/USD"
 
-    def start(self) -> None:
+        data = self.get_from_blockchain(contract_address, title)
+
+        return build_table(data)
+
+    def start(self, update: Update, context: CallbackContext) -> None:
         """ start the bot """
         self.menu_command()
 
@@ -165,8 +133,9 @@ class CLPriceFeedsTelegramBot:
 
         selected_option = query.data
 
-        if (time.time() - self.cachetime[selected_option]
-            ) > self.CACHE_DURATION or self.cache[selected_option] is None:
+        time_from_last_query = time.time() - self.cachetime[selected_option]
+
+        if time_from_last_query > self.CACHE_DURATION or self.cache[selected_option] is None:
             table = self.get_price(selected_option)
             self.cache[selected_option] = table
             self.cachetime[selected_option] = time.time()
@@ -208,6 +177,6 @@ class CLPriceFeedsTelegramBot:
         # SIGTERM or SIGABRT
         updater.idle()
 
-
-bot_instance = CLPriceFeedsTelegramBot()
-bot_instance.main()
+if __name__ == '__main__':
+    bot_instance = CLPriceFeedsTelegramBot()
+    bot_instance.main()
